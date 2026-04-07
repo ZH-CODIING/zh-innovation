@@ -12,42 +12,48 @@ class ApplicationController extends Controller
     /**
      * حفظ طلب التقديم الجديد (Store)
      */
-    public function store(Request $request, $jobId)
+  public function store(Request $request, $jobId)
     {
         // 1. التحقق من البيانات المدخلة
         $request->validate([
             'full_name'    => 'required|string|max:255',
             'phone'        => 'required|string|max:20',
             'whatsapp'     => 'nullable|string|max:20',
-            'resume'       => 'required|mimes:pdf,doc,docx|max:2048', // ملف PDF أو Word، بحد أقصى 2MB
+            'resume'       => 'required|mimes:pdf,doc,docx|max:2048', // بحد أقصى 2MB
             'cover_letter' => 'nullable|string|min:10',
         ]);
 
         // 2. التأكد من أن الوظيفة موجودة ومفتوحة للتقديم
         $job = Job::findOrFail($jobId);
         if ($job->status !== 'open') {
-            return back()->with('error', 'عذراً، هذه الوظيفة لم تعد تقبل طلبات جديدة.');
+            return response()->json([
+                'success' => false,
+                'message' => 'عذراً، هذه الوظيفة لم تعد تقبل طلبات جديدة.'
+            ], 400);
         }
 
         // 3. معالجة رفع ملف السيرة الذاتية
         $resumePath = null;
         if ($request->hasFile('resume')) {
-            // سيتم تخزين الملف في storage/app/public/resumes
             $resumePath = $request->file('resume')->store('resumes', 'public');
         }
 
         // 4. إنشاء الطلب في قاعدة البيانات
-        Application::create([
+        $application = Application::create([
             'job_id'       => $job->id,
             'full_name'    => $request->full_name,
             'phone'        => $request->phone,
             'whatsapp'     => $request->whatsapp,
             'resume'       => $resumePath,
             'cover_letter' => $request->cover_letter,
-            'status'       => 'pending', // الحالة الافتراضية
+            'status'       => 'pending',
         ]);
 
-        return back()->with('success', 'تم إرسال طلبك بنجاح! سنتواصل معك قريباً.');
+        return response()->json([
+            'success' => true,
+            'message' => 'تم إرسال طلبك بنجاح! سنتواصل معك قريباً.',
+            'data'    => $application
+        ], 201);
     }
 
     /**
@@ -71,7 +77,7 @@ public function index($jobId)
     /**
      * تحديث حالة الطلب (قبول / رفض)
      */
-   public function updateStatus(Request $request, Application $application)
+public function updateStatus(Request $request, Application $application)
     {
         // 1. التحقق من البيانات
         $request->validate([
