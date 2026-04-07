@@ -1,0 +1,2 @@
+[03-Dec-2025 08:42:41 UTC] PHP Fatal error:  Trait "App\Traits\ApiResponseTrait" not found in /home/zhcoding/public_html/api.zh-coding.com/app/Http/Controllers/PackageController.php on line 9
+[03-Dec-2025 08:42:57 UTC] PHP Fatal error:  Trait "App\Http\Controllers\ApiResponseTrait" not found in /home/zhcoding/public_html/api.zh-coding.com/app/Http/Controllers/PackageController.php on line 9
