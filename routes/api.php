@@ -69,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- نظام التعليقات والردود ---
     // إضافة تعليق (لو parent_id موجود في الطلب يتحول لرد تلقائياً)
     Route::post('/blog/{blog_post}/comments', [CommentController::class, 'store']); 
+    
     Route::put('/comments/{comment}', [CommentController::class, 'update']);
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 
@@ -78,7 +79,9 @@ Route::middleware('auth:sanctum')->group(function () {
     |----------------------------------------------------------------------
     */
     Route::middleware('admin')->group(function () {
-
+       Route::post('/blog-posts', [BlogPostController::class, 'store']); 
+        Route::post('/blog-posts/{blog_post}', [BlogPostController::class, 'update']); 
+        Route::delete('/blog-posts/{blog_post}', [BlogPostController::class, 'destroy']);
         // 1. User & Payments
         Route::apiResource('users', UserController::class);
         Route::get('payments', [PaymentController::class, 'index']);
