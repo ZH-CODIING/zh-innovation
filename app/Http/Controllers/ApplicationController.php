@@ -71,14 +71,26 @@ public function index($jobId)
     /**
      * تحديث حالة الطلب (قبول / رفض)
      */
-    public function updateStatus(Request $request, Application $application)
+   public function updateStatus(Request $request, Application $application)
     {
+        // 1. التحقق من البيانات
         $request->validate([
             'status' => 'required|in:pending,accepted,rejected'
         ]);
 
-        $application->update(['status' => $request->status]);
+        // 2. تحديث الحالة في قاعدة البيانات
+        $application->update([
+            'status' => $request->status
+        ]);
 
-        return back()->with('success', 'تم تحديث حالة الطلب بنجاح.');
+        // 3. رد بنتيجة العملية بصيغة JSON
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تحديث حالة الطلب بنجاح.',
+            'data'    => [
+                'application_id' => $application->id,
+                'new_status'     => $application->status
+            ]
+        ], 200);
     }
 }
